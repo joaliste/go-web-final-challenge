@@ -5,6 +5,7 @@ import (
 	"app/internal/loader"
 	"app/internal/repository"
 	"app/internal/service"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -35,7 +36,7 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 	}
 
 	return &ServerChi{
-		serverAddress: defaultConfig.ServerAddress,
+		serverAddress:  defaultConfig.ServerAddress,
 		loaderFilePath: defaultConfig.LoaderFilePath,
 	}
 }
@@ -74,6 +75,7 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/", hd.GetAll())
 	})
 
+	fmt.Println("server is running...")
 	// run server
 	err = http.ListenAndServe(a.serverAddress, rt)
 	return
