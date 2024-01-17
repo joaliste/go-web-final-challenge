@@ -399,7 +399,6 @@ func (h *VehicleDefault) UpdateSpeed() http.HandlerFunc {
 }
 
 // GetByFuelType is a method that returns a map of vehicles with a specific fuel type.
-// Pattern GET /vehicles/color/{color}/year/{year}
 func (h *VehicleDefault) GetByFuelType() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// request
@@ -471,6 +470,38 @@ func (h *VehicleDefault) DeleteVehicle() http.HandlerFunc {
 		response.JSON(w, http.StatusNoContent, map[string]any{
 			"message": "vehicle successfully deleted",
 			"id":      id,
+		})
+	}
+}
+
+// GetAverageCapacityByBrand is a method that returns a float with the average capacity for a brand
+// Pattern GET /average_capacity/brand/{brand}
+func (h *VehicleDefault) GetAverageCapacityByBrand() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		brand := chi.URLParam(r, "brand")
+
+		// process
+		// - get average speed for a brand
+		averageCapacity, err := h.sv.GetAverageCapacityByBrand(brand)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(
+					w,
+					http.StatusNotFound,
+					"No vehicles found with that brand",
+				)
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message":          "success",
+			"average_capacity": averageCapacity,
 		})
 	}
 }

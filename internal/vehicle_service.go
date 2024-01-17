@@ -32,4 +32,6 @@ type VehicleService interface {
 	GetByFuelType(fuelType string) (v map[int]Vehicle, err error)
 	// DeleteVehicle is a method that deletes a vehicle
 	DeleteVehicle(id int) (err error)
+	// GetAverageCapacityByBrand is a method that returns the average capacity of the vehicles of a brand
+	GetAverageCapacityByBrand(brand string) (ac float64, err error)
 }

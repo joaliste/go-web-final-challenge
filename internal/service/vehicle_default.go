@@ -208,3 +208,21 @@ func (s *VehicleDefault) DeleteVehicle(id int) (err error) {
 	err = s.rp.DeleteVehicle(id)
 	return
 }
+
+// GetAverageCapacityByBrand is a method that returns the average speed of the vehicles of a brand
+func (s *VehicleDefault) GetAverageCapacityByBrand(brand string) (ac float64, err error) {
+	vm, err := s.rp.GetByBrand(brand)
+
+	if err != nil {
+		return
+	}
+
+	count := len(vm)
+	capacitySum := 0.0
+	for _, v := range vm {
+		capacitySum += float64(v.Capacity)
+	}
+	ac = capacitySum / float64(count)
+
+	return
+}
