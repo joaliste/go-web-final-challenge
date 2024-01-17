@@ -3,7 +3,9 @@ package internal
 import "errors"
 
 var (
-	ErrFieldRequired        = errors.New("field required")
+	// ErrFieldRequired is an error returned when a field is missing
+	ErrFieldRequired = errors.New("field required")
+	// ErrVehicleAlreadyExists is an error returned when a vehicle already exists
 	ErrVehicleAlreadyExists = errors.New("vehicle already exists")
 )
 
