@@ -167,3 +167,21 @@ func (r *VehicleMap) DeleteVehicle(id int) (err error) {
 
 	return nil
 }
+
+// GetByDimensions is a method that returns vehicles with a specific dimension
+func (r *VehicleMap) GetByDimensions(minLength, maxLength, minWidth, maxWidth float64) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// copy db with the specific vehicles considering the dimension
+	for key, value := range r.db {
+		if (value.Length >= minLength && value.Length <= maxLength) && (value.Width >= minWidth && value.Width <= maxWidth) {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		err = internal.ErrVehiclesNotFound
+	}
+
+	return
+}

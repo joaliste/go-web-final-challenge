@@ -34,4 +34,6 @@ type VehicleRepository interface {
 	GetByFuelType(fuelType string) (v map[int]Vehicle, err error)
 	// DeleteVehicle is a method that deletes a vehicle
 	DeleteVehicle(id int) (err error)
+	// GetByDimensions is a method that returns vehicles with a specific dimension
+	GetByDimensions(minLength, maxLength, minWidth, maxWidth float64) (v map[int]Vehicle, err error)
 }

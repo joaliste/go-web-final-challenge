@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/bootcamp-go/web/response"
 )
@@ -502,6 +503,74 @@ func (h *VehicleDefault) GetAverageCapacityByBrand() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message":          "success",
 			"average_capacity": averageCapacity,
+		})
+	}
+}
+
+// GetByDimensions is a method that returns a map of vehicles with a specific dimension.
+func (h *VehicleDefault) GetByDimensions() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		length := strings.Split(r.URL.Query().Get("length"), "-")
+		width := strings.Split(r.URL.Query().Get("width"), "-")
+
+		minLength, err := strconv.ParseFloat(length[0], 64)
+		if err != nil || minLength < 0 {
+			response.Text(w, http.StatusBadRequest, "invalid min_length")
+			return
+		}
+		maxLength, err := strconv.ParseFloat(length[1], 64)
+		if err != nil || maxLength < 0 || minLength > maxLength {
+			response.Text(w, http.StatusBadRequest, "invalid max_length")
+			return
+		}
+		minWidth, err := strconv.ParseFloat(width[0], 64)
+		if err != nil || minWidth < 0 {
+			response.Text(w, http.StatusBadRequest, "invalid min_width")
+			return
+		}
+		maxWidth, err := strconv.ParseFloat(width[1], 64)
+		if err != nil || maxWidth < 0 || minWidth > maxWidth {
+			response.Text(w, http.StatusBadRequest, "invalid max_width")
+			return
+		}
+
+		// process
+		// - get all vehicles by dimension
+		v, err := h.sv.GetByDimensions(minLength, maxLength, minWidth, maxWidth)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(w, http.StatusNotFound, "No vehicles found with that dimensions")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]VehicleJSON)
+		for key, value := range v {
+			data[key] = VehicleJSON{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
 		})
 	}
 }
