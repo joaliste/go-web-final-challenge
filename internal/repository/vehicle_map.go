@@ -29,3 +29,19 @@ func (r *VehicleMap) FindAll() (v map[int]internal.Vehicle, err error) {
 
 	return
 }
+
+// Add is a method that adds a new vehicle to the repository
+func (r *VehicleMap) Add(v *internal.Vehicle) error {
+	for _, vdb := range r.db {
+		if vdb.Id == v.Id {
+			return internal.ErrVehicleIdAlreadyExists
+		}
+
+		if vdb.Registration == v.Registration {
+			return internal.ErrVehicleRegistrationAlreadyExists
+		}
+	}
+	r.db[v.Id] = *v
+
+	return nil
+}

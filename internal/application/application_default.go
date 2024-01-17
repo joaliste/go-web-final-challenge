@@ -73,6 +73,7 @@ func (a *ServerChi) Run() (err error) {
 	rt.Route("/vehicles", func(rt chi.Router) {
 		// - GET /vehicles
 		rt.Get("/", hd.GetAll())
+		rt.Post("/", hd.AddVehicle())
 	})
 
 	fmt.Println("server is running...")

@@ -2,6 +2,8 @@ package handler
 
 import (
 	"app/internal"
+	"errors"
+	"github.com/bootcamp-go/web/request"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -73,6 +75,76 @@ func (h *VehicleDefault) GetAll() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "success",
 			"data":    data,
+		})
+	}
+}
+
+// AddVehicle is a method that adds a new vehicle to the vehicles map for the route post /vehicles
+func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		var reqBody VehicleJSON
+		err := request.JSON(r, &reqBody)
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, "Invalid request body")
+			return
+		}
+		// process
+		// - deserialize to vehicle
+		v := internal.Vehicle{
+			Id: reqBody.ID,
+			VehicleAttributes: internal.VehicleAttributes{
+				Brand:           reqBody.Brand,
+				Model:           reqBody.Model,
+				Registration:    reqBody.Registration,
+				Color:           reqBody.Color,
+				FabricationYear: reqBody.FabricationYear,
+				Capacity:        reqBody.Capacity,
+				MaxSpeed:        reqBody.MaxSpeed,
+				FuelType:        reqBody.FuelType,
+				Transmission:    reqBody.Transmission,
+				Weight:          reqBody.Weight,
+				Dimensions: internal.Dimensions{
+					Height: reqBody.Height,
+					Length: reqBody.Length,
+					Width:  reqBody.Width,
+				},
+			},
+		}
+		err = h.sv.Add(&v)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehicleAlreadyExists):
+				response.Error(w, http.StatusConflict, "Vehicle already exists")
+			case errors.Is(err, internal.ErrFieldRequired):
+				response.Error(w, http.StatusBadRequest, "Some fields are missing")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+		// response
+		// - serialize to VehicleJSON
+		responseData := VehicleJSON{
+			ID:              v.Id,
+			Brand:           v.Brand,
+			Model:           v.Model,
+			Registration:    v.Registration,
+			Color:           v.Color,
+			FabricationYear: v.FabricationYear,
+			Capacity:        v.Capacity,
+			MaxSpeed:        v.MaxSpeed,
+			FuelType:        v.FuelType,
+			Transmission:    v.Transmission,
+			Weight:          v.Weight,
+			Height:          v.Height,
+			Length:          v.Length,
+			Width:           v.Width,
+		}
+
+		response.JSON(w, http.StatusCreated, map[string]any{
+			"message": "vehicle created",
+			"data":    responseData,
 		})
 	}
 }
