@@ -264,3 +264,35 @@ func (h *VehicleDefault) GetByBrandAndYears() http.HandlerFunc {
 		})
 	}
 }
+
+// GetAverageSpeedByBrand is a method that returns a float with the average speed for a brand
+// Pattern GET /average_speed/brand/{brand}
+func (h *VehicleDefault) GetAverageSpeedByBrand() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		brand := chi.URLParam(r, "brand")
+
+		// process
+		// - get average speed for a brand
+		averageSpeed, err := h.sv.GetAverageSpeedByBrand(brand)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(
+					w,
+					http.StatusNotFound,
+					"No vehicles found with that brand",
+				)
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message":       "success",
+			"average_speed": averageSpeed,
+		})
+	}
+}

@@ -20,4 +20,6 @@ type VehicleService interface {
 	// GetByBrandAndYears is a method that returns a map of vehicles with a specific brand
 	// and between two years
 	GetByBrandAndYears(brand string, startYear, endYear int) (v map[int]Vehicle, err error)
+	// GetAverageSpeedByBrand is a method that returns the average speed of the vehicles of a brand
+	GetAverageSpeedByBrand(brand string) (s float64, err error)
 }

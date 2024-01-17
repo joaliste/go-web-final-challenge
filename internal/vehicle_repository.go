@@ -22,4 +22,6 @@ type VehicleRepository interface {
 	// GetByBrandAndYears is a method that returns a map of vehicles with a specific brand
 	// and between two years
 	GetByBrandAndYears(brand string, startYear, endYear int) (v map[int]Vehicle, err error)
+	// GetByBrand is a method that returns the vehicles of a brand
+	GetByBrand(brand string) (v map[int]Vehicle, err error)
 }
