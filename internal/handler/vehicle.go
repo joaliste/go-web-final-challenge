@@ -29,6 +29,11 @@ type VehicleJSON struct {
 	Width           float64 `json:"width"`
 }
 
+// SpeedUpdateRequest is a struct that represents the speed update request.
+type SpeedUpdateRequest struct {
+	MaxSpeed float64 `json:"max_speed"`
+}
+
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
 func NewVehicleDefault(sv internal.VehicleService) *VehicleDefault {
 	return &VehicleDefault{sv: sv}
@@ -120,6 +125,8 @@ func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
 				response.Error(w, http.StatusConflict, "Vehicle already exists")
 			case errors.Is(err, internal.ErrFieldRequired):
 				response.Error(w, http.StatusBadRequest, "Some fields are missing")
+			case errors.Is(err, internal.ErrInvalidFieldValue):
+				response.Error(w, http.StatusBadRequest, "Some fields have invalid values")
 			default:
 				response.Error(w, http.StatusInternalServerError, "Internal error")
 			}
@@ -349,6 +356,44 @@ func (h *VehicleDefault) AddVehiclesByBatch() http.HandlerFunc {
 
 		response.JSON(w, http.StatusCreated, map[string]any{
 			"message": "vehicle successfully created",
+		})
+	}
+}
+
+// UpdateSpeed is a method that update the speed of a vehicle
+func (h *VehicleDefault) UpdateSpeed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil || id <= 0 {
+			response.Text(w, http.StatusBadRequest, "invalid id")
+			return
+		}
+		var reqBody SpeedUpdateRequest
+		err = request.JSON(r, &reqBody)
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, "Invalid request body")
+			return
+		}
+		// process
+
+		err = h.sv.UpdateSpeed(reqBody.MaxSpeed, id)
+
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehicleIdNotFound):
+				response.Error(w, http.StatusConflict, "Vehicle with that id not found")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+		// response
+
+		response.JSON(w, http.StatusCreated, map[string]any{
+			"message":   "max speed updated",
+			"id":        id,
+			"max_speed": reqBody.MaxSpeed,
 		})
 	}
 }

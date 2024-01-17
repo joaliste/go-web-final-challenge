@@ -9,6 +9,8 @@ var (
 	ErrVehicleRegistrationAlreadyExists = errors.New("vehicle registration already exists")
 	// ErrVehiclesNotFound is the error returned when a vehicle registration already exists
 	ErrVehiclesNotFound = errors.New("vehicles not found")
+	// ErrVehicleIdNotFound is the error returned when a vehicle registration already exists
+	ErrVehicleIdNotFound = errors.New("vehicle not found")
 )
 
 // VehicleRepository is an interface that represents a vehicle repository
@@ -26,4 +28,6 @@ type VehicleRepository interface {
 	GetByBrand(brand string) (v map[int]Vehicle, err error)
 	// AddBatch is a method that adds a new vehicles to the repository
 	AddBatch(vSlice []*Vehicle) error
+	// UpdateSpeed is a method that updates the speed of a vehicle
+	UpdateSpeed(speed float64, id int) error
 }

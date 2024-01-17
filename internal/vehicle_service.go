@@ -7,6 +7,8 @@ var (
 	ErrFieldRequired = errors.New("field required")
 	// ErrVehicleAlreadyExists is an error returned when a vehicle already exists
 	ErrVehicleAlreadyExists = errors.New("vehicle already exists")
+	// ErrInvalidFieldValue is an error returned when a field have an invalid value
+	ErrInvalidFieldValue = errors.New("field with invalid value")
 )
 
 // VehicleService is an interface that represents a vehicle service
@@ -24,4 +26,6 @@ type VehicleService interface {
 	GetAverageSpeedByBrand(brand string) (s float64, err error)
 	// AddBatch is a method that adds a new vehicles to the repository
 	AddBatch(vSlice []*Vehicle) error
+	// UpdateSpeed is a method that updates the speed of a vehicle
+	UpdateSpeed(speed float64, id int) error
 }

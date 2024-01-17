@@ -4,6 +4,7 @@ import (
 	"app/internal"
 	"errors"
 	"fmt"
+	"time"
 )
 
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
@@ -47,6 +48,7 @@ func (s *VehicleDefault) Add(v *internal.Vehicle) error {
 
 // validateAddVehicleRequestData is a function that validates the required fields of a vehicle
 func validateAddVehicleRequestData(v *internal.Vehicle) error {
+	// missing fields
 	if v.Brand == "" {
 		return fmt.Errorf("%w: brand", internal.ErrFieldRequired)
 	}
@@ -81,10 +83,6 @@ func validateAddVehicleRequestData(v *internal.Vehicle) error {
 		return fmt.Errorf("%w: weight", internal.ErrFieldRequired)
 	}
 
-	if v.Weight == 0 {
-		return fmt.Errorf("%w: weight", internal.ErrFieldRequired)
-	}
-
 	if v.Height == 0 {
 		return fmt.Errorf("%w: height", internal.ErrFieldRequired)
 	}
@@ -95,6 +93,35 @@ func validateAddVehicleRequestData(v *internal.Vehicle) error {
 
 	if v.Width == 0 {
 		return fmt.Errorf("%w: width", internal.ErrFieldRequired)
+	}
+	// valid field values
+	year, _, _ := time.Now().Date()
+	if v.FabricationYear < 1900 || v.FabricationYear > year {
+		return fmt.Errorf("%w: year", internal.ErrInvalidFieldValue)
+	}
+
+	if v.Capacity <= 0 || v.Capacity > 6 {
+		return fmt.Errorf("%w: passenger", internal.ErrInvalidFieldValue)
+	}
+
+	if v.MaxSpeed < 0 || v.MaxSpeed > 300 {
+		return fmt.Errorf("%w: max_speed", internal.ErrInvalidFieldValue)
+	}
+
+	if v.Weight < 0 || v.Weight > 500 {
+		return fmt.Errorf("%w: weight", internal.ErrInvalidFieldValue)
+	}
+
+	if v.Height < 0 || v.Height > 500 {
+		return fmt.Errorf("%w: height", internal.ErrInvalidFieldValue)
+	}
+
+	if v.Length < 0 || v.Length > 500 {
+		return fmt.Errorf("%w: length", internal.ErrInvalidFieldValue)
+	}
+
+	if v.Width < 0 || v.Width > 0 {
+		return fmt.Errorf("%w: width", internal.ErrInvalidFieldValue)
 	}
 
 	return nil
@@ -149,6 +176,21 @@ func (s *VehicleDefault) AddBatch(vSlice []*internal.Vehicle) error {
 		case errors.Is(err, internal.ErrVehicleRegistrationAlreadyExists):
 			err = fmt.Errorf("%w: registration", internal.ErrVehicleAlreadyExists)
 		}
+		return err
+	}
+
+	return nil
+}
+
+// UpdateSpeed is a method that updates the max speed of a vehicle
+func (s *VehicleDefault) UpdateSpeed(speed float64, id int) error {
+	if speed < 0 || speed > 300 {
+		return internal.ErrInvalidFieldValue
+	}
+
+	err := s.rp.UpdateSpeed(speed, id)
+
+	if err != nil {
 		return err
 	}
 

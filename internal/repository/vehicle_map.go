@@ -124,3 +124,16 @@ func checkExistence(v internal.Vehicle, db map[int]internal.Vehicle) error {
 	}
 	return nil
 }
+
+// UpdateSpeed is a method that updates the max speed of a vehicle
+func (r *VehicleMap) UpdateSpeed(speed float64, id int) error {
+	v, ok := r.db[id]
+
+	if !ok {
+		return internal.ErrVehicleIdNotFound
+	}
+	v.MaxSpeed = speed
+	r.db[id] = v
+
+	return nil
+}

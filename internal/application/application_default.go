@@ -78,6 +78,7 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/brand/{brand}/between/{start_year}/{end_year}", hd.GetByBrandAndYears())
 		rt.Get("/average_speed/brand/{brand}", hd.GetAverageSpeedByBrand())
 		rt.Post("/batch", hd.AddVehiclesByBatch())
+		rt.Put("/{id}/update_speed", hd.UpdateSpeed())
 	})
 
 	fmt.Println("server is running...")
