@@ -202,3 +202,65 @@ func (h *VehicleDefault) GetByColorAndYear() http.HandlerFunc {
 		})
 	}
 }
+
+// GetByBrandAndYears is a method that returns a map of vehicles with a specific brand
+// and between two years.
+// Pattern GET /brand/{brand}/between/{start_year}/{end_year}
+func (h *VehicleDefault) GetByBrandAndYears() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		brand := chi.URLParam(r, "brand")
+		startYear, err := strconv.Atoi(chi.URLParam(r, "start_year"))
+		if err != nil {
+			response.Text(w, http.StatusBadRequest, "invalid start year")
+			return
+		}
+		endYear, err := strconv.Atoi(chi.URLParam(r, "end_year"))
+		if err != nil {
+			response.Text(w, http.StatusBadRequest, "invalid end year")
+			return
+		}
+
+		// process
+		// - get all vehicles
+		v, err := h.sv.GetByBrandAndYears(brand, startYear, endYear)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(
+					w,
+					http.StatusNotFound,
+					"No vehicles found with that brand and between those years",
+				)
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]VehicleJSON)
+		for key, value := range v {
+			data[key] = VehicleJSON{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
+	}
+}

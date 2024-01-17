@@ -63,3 +63,22 @@ func (r *VehicleMap) GetByColorAndYear(color string, year int) (v map[int]intern
 
 	return
 }
+
+// GetByBrandAndYears is a method that returns a map of vehicles with a specific brand
+// and between two years
+func (r *VehicleMap) GetByBrandAndYears(brand string, startYear, endYear int) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// copy db with the specific vehicles considering color and year
+	for key, value := range r.db {
+		if value.FabricationYear >= startYear && value.FabricationYear <= endYear && value.Brand == brand {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		err = internal.ErrVehiclesNotFound
+	}
+
+	return
+}

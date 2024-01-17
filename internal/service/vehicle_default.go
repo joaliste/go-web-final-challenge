@@ -105,3 +105,10 @@ func (s *VehicleDefault) GetByColorAndYear(color string, year int) (v map[int]in
 	v, err = s.rp.GetByColorAndYear(color, year)
 	return
 }
+
+// GetByBrandAndYears is a method that returns a map of vehicles with a specific brand
+// and between two years
+func (s *VehicleDefault) GetByBrandAndYears(color string, startYear, endYear int) (v map[int]internal.Vehicle, err error) {
+	v, err = s.rp.GetByBrandAndYears(color, startYear, endYear)
+	return
+}
