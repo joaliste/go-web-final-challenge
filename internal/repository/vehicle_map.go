@@ -32,14 +32,9 @@ func (r *VehicleMap) FindAll() (v map[int]internal.Vehicle, err error) {
 
 // Add is a method that adds a new vehicle to the repository
 func (r *VehicleMap) Add(v *internal.Vehicle) error {
-	for _, vdb := range r.db {
-		if vdb.Id == v.Id {
-			return internal.ErrVehicleIdAlreadyExists
-		}
-
-		if vdb.Registration == v.Registration {
-			return internal.ErrVehicleRegistrationAlreadyExists
-		}
+	err := checkExistence(*v, r.db)
+	if err != nil {
+		return err
 	}
 	r.db[v.Id] = *v
 
@@ -83,7 +78,7 @@ func (r *VehicleMap) GetByBrandAndYears(brand string, startYear, endYear int) (v
 	return
 }
 
-// GetByBrand is a method that returns a map with vehicles from an specific brand
+// GetByBrand is a method that returns a map with vehicles from a specific brand
 func (r *VehicleMap) GetByBrand(brand string) (v map[int]internal.Vehicle, err error) {
 	v = make(map[int]internal.Vehicle)
 
@@ -99,4 +94,33 @@ func (r *VehicleMap) GetByBrand(brand string) (v map[int]internal.Vehicle, err e
 	}
 
 	return
+}
+
+// AddBatch is a method that adds a new vehicles to the repository
+func (r *VehicleMap) AddBatch(vSlice []*internal.Vehicle) error {
+	for _, value := range vSlice {
+		err := checkExistence(*value, r.db)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, v := range vSlice {
+		r.db[v.Id] = *v
+	}
+
+	return nil
+}
+
+func checkExistence(v internal.Vehicle, db map[int]internal.Vehicle) error {
+	for _, vdb := range db {
+		if vdb.Id == v.Id {
+			return internal.ErrVehicleIdAlreadyExists
+		}
+
+		if vdb.Registration == v.Registration {
+			return internal.ErrVehicleRegistrationAlreadyExists
+		}
+	}
+	return nil
 }

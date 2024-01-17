@@ -296,3 +296,59 @@ func (h *VehicleDefault) GetAverageSpeedByBrand() http.HandlerFunc {
 		})
 	}
 }
+
+// AddVehiclesByBatch is a method that adds batch of vehicles. Pattern /bach
+func (h *VehicleDefault) AddVehiclesByBatch() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		var reqBody []VehicleJSON
+		err := request.JSON(r, &reqBody)
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, "Invalid request body")
+			return
+		}
+		// process
+		// - deserialize to vehicle
+		var deserializedData []*internal.Vehicle
+		for _, v := range reqBody {
+			deserializedV := internal.Vehicle{
+				Id: v.ID,
+				VehicleAttributes: internal.VehicleAttributes{
+					Brand:           v.Brand,
+					Model:           v.Model,
+					Registration:    v.Registration,
+					Color:           v.Color,
+					FabricationYear: v.FabricationYear,
+					Capacity:        v.Capacity,
+					MaxSpeed:        v.MaxSpeed,
+					FuelType:        v.FuelType,
+					Transmission:    v.Transmission,
+					Weight:          v.Weight,
+					Dimensions: internal.Dimensions{
+						Height: v.Height,
+						Length: v.Length,
+						Width:  v.Width,
+					},
+				},
+			}
+			deserializedData = append(deserializedData, &deserializedV)
+		}
+		err = h.sv.AddBatch(deserializedData)
+
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehicleAlreadyExists):
+				response.Error(w, http.StatusConflict, "Some of the vehicles already exist")
+			case errors.Is(err, internal.ErrFieldRequired):
+				response.Error(w, http.StatusBadRequest, "Some vehicles have missing fields")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		response.JSON(w, http.StatusCreated, map[string]any{
+			"message": "vehicle successfully created",
+		})
+	}
+}

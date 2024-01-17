@@ -130,3 +130,27 @@ func (s *VehicleDefault) GetAverageSpeedByBrand(brand string) (as float64, err e
 
 	return
 }
+
+// AddBatch is a method that adds a new vehicles to the repository
+func (s *VehicleDefault) AddBatch(vSlice []*internal.Vehicle) error {
+	for _, v := range vSlice {
+		err := validateAddVehicleRequestData(v)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := s.rp.AddBatch(vSlice)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, internal.ErrVehicleIdAlreadyExists):
+			err = fmt.Errorf("%w: id", internal.ErrVehicleAlreadyExists)
+		case errors.Is(err, internal.ErrVehicleRegistrationAlreadyExists):
+			err = fmt.Errorf("%w: registration", internal.ErrVehicleAlreadyExists)
+		}
+		return err
+	}
+
+	return nil
+}

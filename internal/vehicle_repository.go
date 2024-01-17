@@ -24,4 +24,6 @@ type VehicleRepository interface {
 	GetByBrandAndYears(brand string, startYear, endYear int) (v map[int]Vehicle, err error)
 	// GetByBrand is a method that returns the vehicles of a brand
 	GetByBrand(brand string) (v map[int]Vehicle, err error)
+	// AddBatch is a method that adds a new vehicles to the repository
+	AddBatch(vSlice []*Vehicle) error
 }
