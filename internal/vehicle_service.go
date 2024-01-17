@@ -36,4 +36,6 @@ type VehicleService interface {
 	GetAverageCapacityByBrand(brand string) (ac float64, err error)
 	// GetByDimensions is a method that returns vehicles with a specific dimension
 	GetByDimensions(minLength, maxLength, minWidth, maxWidth float64) (v map[int]Vehicle, err error)
+	// GetByWeight is a method that returns vehicles with a specific weight
+	GetByWeight(minWeight, maxWeight float64) (v map[int]Vehicle, err error)
 }

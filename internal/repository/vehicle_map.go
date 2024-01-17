@@ -185,3 +185,21 @@ func (r *VehicleMap) GetByDimensions(minLength, maxLength, minWidth, maxWidth fl
 
 	return
 }
+
+// GetByWeight is a method that returns vehicles with a specific weight
+func (r *VehicleMap) GetByWeight(minWeight, maxWeight float64) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// copy db with the specific vehicles considering the weight
+	for key, value := range r.db {
+		if value.Weight >= minWeight && value.Weight <= maxWeight {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		err = internal.ErrVehiclesNotFound
+	}
+
+	return
+}

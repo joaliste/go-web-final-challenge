@@ -574,3 +574,58 @@ func (h *VehicleDefault) GetByDimensions() http.HandlerFunc {
 		})
 	}
 }
+
+// GetByWeight is a method that returns a map of vehicles with a specific weight.
+func (h *VehicleDefault) GetByWeight() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		minWeight, err := strconv.ParseFloat(r.URL.Query().Get("min"), 64)
+		if err != nil || minWeight < 0 {
+			response.Text(w, http.StatusBadRequest, "invalid min_weight")
+			return
+		}
+		maxWeight, err := strconv.ParseFloat(r.URL.Query().Get("max"), 64)
+		if err != nil || maxWeight < 0 || minWeight > maxWeight {
+			response.Text(w, http.StatusBadRequest, "invalid max_weight")
+			return
+		}
+
+		// process
+		// - get all vehicles by weight
+		v, err := h.sv.GetByWeight(minWeight, maxWeight)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(w, http.StatusNotFound, "No vehicles found with that weight")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]VehicleJSON)
+		for key, value := range v {
+			data[key] = VehicleJSON{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
+	}
+}

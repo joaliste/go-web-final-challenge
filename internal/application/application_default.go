@@ -83,6 +83,7 @@ func (a *ServerChi) Run() (err error) {
 		rt.Delete("/{id}", hd.DeleteVehicle())
 		rt.Get("/average_capacity/brand/{brand}", hd.GetAverageCapacityByBrand())
 		rt.Get("/dimensions", hd.GetByDimensions())
+		rt.Get("/weight", hd.GetByWeight())
 	})
 
 	fmt.Println("server is running...")
