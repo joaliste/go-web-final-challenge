@@ -28,4 +28,6 @@ type VehicleService interface {
 	AddBatch(vSlice []*Vehicle) error
 	// UpdateSpeed is a method that updates the speed of a vehicle
 	UpdateSpeed(speed float64, id int) error
+	// GetByFuelType is a method that returns a map of vehicles with a type of fuel
+	GetByFuelType(fuelType string) (v map[int]Vehicle, err error)
 }

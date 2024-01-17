@@ -397,3 +397,50 @@ func (h *VehicleDefault) UpdateSpeed() http.HandlerFunc {
 		})
 	}
 }
+
+// GetByFuelType is a method that returns a map of vehicles with a specific fuel type.
+// Pattern GET /vehicles/color/{color}/year/{year}
+func (h *VehicleDefault) GetByFuelType() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		fuelType := chi.URLParam(r, "type")
+
+		// process
+		// - get all vehicles
+		v, err := h.sv.GetByFuelType(fuelType)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(w, http.StatusNotFound, "No vehicles found with that fuel type")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]VehicleJSON)
+		for key, value := range v {
+			data[key] = VehicleJSON{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
+	}
+}
