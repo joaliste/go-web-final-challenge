@@ -15,4 +15,6 @@ type VehicleService interface {
 	FindAll() (v map[int]Vehicle, err error)
 	// Add is a method that adds a new vehicle to the repository
 	Add(v *Vehicle) error
+	// GetByColorAndYear is a method that returns a map of vehicles with a specific color and year
+	GetByColorAndYear(color string, year int) (v map[int]Vehicle, err error)
 }

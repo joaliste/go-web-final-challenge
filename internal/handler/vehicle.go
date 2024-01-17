@@ -4,7 +4,9 @@ import (
 	"app/internal"
 	"errors"
 	"github.com/bootcamp-go/web/request"
+	"github.com/go-chi/chi/v5"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
 )
@@ -145,6 +147,58 @@ func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
 		response.JSON(w, http.StatusCreated, map[string]any{
 			"message": "vehicle created",
 			"data":    responseData,
+		})
+	}
+}
+
+// GetByColorAndYear is a method that returns a map of vehicles with a specific color and year.
+// Pattern GET /vehicles/color/{color}/year/{year}
+func (h *VehicleDefault) GetByColorAndYear() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		color := chi.URLParam(r, "color")
+		year, err := strconv.Atoi(chi.URLParam(r, "year"))
+		if err != nil {
+			response.Text(w, http.StatusBadRequest, "invalid year")
+			return
+		}
+
+		// process
+		// - get all vehicles
+		v, err := h.sv.GetByColorAndYear(color, year)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehiclesNotFound):
+				response.Error(w, http.StatusNotFound, "No vehicles found with that color and year")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]VehicleJSON)
+		for key, value := range v {
+			data[key] = VehicleJSON{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
 		})
 	}
 }

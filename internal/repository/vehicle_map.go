@@ -45,3 +45,21 @@ func (r *VehicleMap) Add(v *internal.Vehicle) error {
 
 	return nil
 }
+
+// GetByColorAndYear is a method that returns a map of vehicles with a specific color and year
+func (r *VehicleMap) GetByColorAndYear(color string, year int) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// copy db with the specific vehicles considering color and year
+	for key, value := range r.db {
+		if value.FabricationYear == year && value.Color == color {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		err = internal.ErrVehiclesNotFound
+	}
+
+	return
+}

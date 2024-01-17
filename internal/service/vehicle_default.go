@@ -99,3 +99,9 @@ func validateAddVehicleRequestData(v *internal.Vehicle) error {
 
 	return nil
 }
+
+// GetByColorAndYear is a method that returns a map of vehicles with a specific color and year
+func (s *VehicleDefault) GetByColorAndYear(color string, year int) (v map[int]internal.Vehicle, err error) {
+	v, err = s.rp.GetByColorAndYear(color, year)
+	return
+}

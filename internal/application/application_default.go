@@ -74,6 +74,7 @@ func (a *ServerChi) Run() (err error) {
 		// - GET /vehicles
 		rt.Get("/", hd.GetAll())
 		rt.Post("/", hd.AddVehicle())
+		rt.Get("/color/{color}/year/{year}", hd.GetByColorAndYear())
 	})
 
 	fmt.Println("server is running...")
