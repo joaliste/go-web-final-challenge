@@ -155,3 +155,15 @@ func (r *VehicleMap) GetByFuelType(fuelType string) (v map[int]internal.Vehicle,
 
 	return
 }
+
+// DeleteVehicle is a method that deletes a vehicle
+func (r *VehicleMap) DeleteVehicle(id int) (err error) {
+	_, ok := r.db[id]
+
+	if !ok {
+		return internal.ErrVehicleIdNotFound
+	}
+	delete(r.db, id)
+
+	return nil
+}

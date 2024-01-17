@@ -355,7 +355,7 @@ func (h *VehicleDefault) AddVehiclesByBatch() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusCreated, map[string]any{
-			"message": "vehicle successfully created",
+			"message": "vehicles successfully created",
 		})
 	}
 }
@@ -441,6 +441,36 @@ func (h *VehicleDefault) GetByFuelType() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "success",
 			"data":    data,
+		})
+	}
+}
+
+// DeleteVehicle is a method that deletes a vehicle
+func (h *VehicleDefault) DeleteVehicle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil || id <= 0 {
+			response.Text(w, http.StatusBadRequest, "invalid id")
+			return
+		}
+		// process
+
+		err = h.sv.DeleteVehicle(id)
+
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrVehicleIdNotFound):
+				response.Error(w, http.StatusConflict, "Vehicle with that id not found")
+			default:
+				response.Error(w, http.StatusInternalServerError, "Internal error")
+			}
+			return
+		}
+		// response
+		response.JSON(w, http.StatusNoContent, map[string]any{
+			"message": "vehicle successfully deleted",
+			"id":      id,
 		})
 	}
 }

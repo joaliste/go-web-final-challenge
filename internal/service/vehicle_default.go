@@ -202,3 +202,9 @@ func (s *VehicleDefault) GetByFuelType(fuelType string) (v map[int]internal.Vehi
 	v, err = s.rp.GetByFuelType(fuelType)
 	return
 }
+
+// DeleteVehicle is a method that deletes a vehicle
+func (s *VehicleDefault) DeleteVehicle(id int) (err error) {
+	err = s.rp.DeleteVehicle(id)
+	return
+}
